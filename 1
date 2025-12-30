@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI College Helpdesk Chatbot</title>
+<style>
+    :root {
+        --primary: #0d47a1;
+        --secondary: #90caf9;
+        --bg: #f0f4fb;
+        --text: #333;
+        --card: #ffffff;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        transition: 0.3s;
+    }
+
+    .dark-mode {
+        --bg: #1a1a1a;
+        --text: #f0f0f0;
+        --card: #2d2d2d;
+        --primary: #1565c0;
+        background: #121212;
+    }
+
+    .chat-container {
+        width: 480px;
+        max-width: 95%;
+        height: 90vh;
+        background: var(--card);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .chat-header {
+        background: var(--primary);
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-btns button {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-left: 5px;
+    }
+
+    .chat-box {
+        flex-grow: 1;
+        padding: 15px;
+        overflow-y: auto;
+        background: var(--bg);
+        scroll-behavior: smooth;
+    }
+
+    .bot-message, .user-message {
+        padding: 12px 16px;
+        border-radius: 15px;
+        margin-bottom: 12px;
+        max-width: 80%;
+        font-size: 14px;
+        line-height: 1.5;
+        animation: fadeIn 0.4s ease;
+    }
+
+    .bot-message { background: var(--card); color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-bottom-left-radius: 2px; }
+    .user-message { background: var(--primary); color: white; margin-left: auto; border-bottom-right-radius: 2px; }
+
+    .info-card {
+        background: rgba(13, 71, 161, 0.08);
+        border-left: 4px solid var(--primary);
+        padding: 10px;
+        margin-top: 8px;
+        border-radius: 4px;
+        font-size: 13px;
+    }
+
+    .quick-btns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 10px;
+        background: var(--bg);
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .quick-btns button {
+        font-size: 12px;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 20px;
+        background: var(--secondary);
+        color: #0d47a1;
+        cursor: pointer;
+        transition: 0.2s;
+        font-weight: 600;
+    }
+
+    .quick-btns button:hover { background: var(--primary); color: white; }
+
+    .chat-input { display: flex; padding: 10px; background: var(--card); border-top: 1px solid #ddd; }
+    .chat-input input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; padding-left: 20px; }
+    .chat-input button { background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; margin-left: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <span>🎓 College AI Helpdesk</span>
+        <div class="header-btns">
+            <button onclick="toggleDarkMode()" id="themeBtn">🌙 Mode</button>
+            <button onclick="clearChat()">🗑️ Clear</button>
+        </div>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        <div class="bot-message">
+            <b>Welcome!</b> 👋<br>
+            I'm your virtual assistant. Check the FAQs below or type your question.
+            <div class="info-card">
+                <b>💡 Common Questions:</b><br>
+                • How to pay fees?<br>
+                • Where is the HOD office?<br>
+                • Anti-ragging policy?
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-btns" id="faqSection">
+        <button onclick="quickAsk('anti ragging')">🚨 Anti-Ragging</button>
+        <button onclick="quickAsk('office hours')">🕒 Office Hours</button>
+        <button onclick="quickAsk('hod contacts')">👨‍🏫 HODs</button>
+        <button onclick="quickAsk('fee details')">💰 Fees</button>
+        <button onclick="quickAsk('exam timetable')">📅 Exams</button>
+    </div>
+
+    <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Ask me something..." autocomplete="off">
+        <button onclick="sendMessage()">➤</button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById("chatBox");
+    const userInput = document.getElementById("userInput");
+
+    // 1. Enter key support
+    userInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+
+    // 2. Dark Mode
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        document.getElementById("themeBtn").innerText = isDark ? "☀️ Light" : "🌙 Dark";
+    }
+
+    // 3. Clear Chat
+    function clearChat() {
+        chatBox.innerHTML = `<div class="bot-message">Chat cleared. How can I help you now?</div>`;
+    }
+
+    function timeNow() {
+        return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    }
+
+    function quickAsk(text) {
+        userInput.value = text;
+        sendMessage();
+    }
+
+    function sendMessage() {
+        const msg = userInput.value.trim();
+        if (!msg) return;
+
+        // Append User Message
+        chatBox.innerHTML += `<div class="user-message">${msg}<div style="font-size:10px; text-align:right; margin-top:4px; opacity:0.8;">${timeNow()}</div></div>`;
+        userInput.value = "";
+        
+        // Typing indicator
+        const typing = document.createElement("div");
+        typing.className = "bot-message";
+        typing.id = "typing";
+        typing.innerHTML = "<i>AI is thinking...</i>";
+        chatBox.appendChild(typing);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        setTimeout(() => {
+            const t = document.getElementById("typing");
+            if(t) t.remove();
+            generateReply(msg.toLowerCase());
+        }, 800);
+    }
+
+    function generateReply(message) {
+        let reply = "";
+        
+        if (message.includes("ragging")) {
+            reply = `<b>🚨 Anti-Ragging Policy</b><br>We have a zero-tolerance policy.
+                     <div class="info-card"><b>Call:</b> 1800-180-5522<br><b>Email:</b> helpline@antiragging.in</div>`;
+        } else if (message.includes("hod") || message.includes("contact")) {
+            reply = `<b>👨‍🏫 Department Heads</b>
+                     <div class="info-card"><b>CS:</b> Dr. Kumar (Room 101)<br><b>ME:</b> Dr. Sharma (Room 204)</div>`;
+        } else if (message.includes("fee")) {
+            reply = `<b>💰 Fee Structure</b><br>Fees can be paid via the Student Portal using Net Banking or UPI.
+                     <div class="info-card">Late fee applies after the 15th of every month.</div>`;
+        } else if (message.includes("hour") || message.includes("time")) {
+            reply = `<b>🕒 Office Timings</b><br>Administrative office is open:<br>Mon - Sat: 9:00 AM - 4:00 PM`;
+        } else if (message.includes("exam")) {
+            reply = `<b>📅 Exam Timetable</b><br>Mid-term exams start next month. 
+                     <div class="info-card">Check the "Downloads" section on the college website for the PDF.</div>`;
+        } else {
+            reply = `🤖 I'm not sure about that. Try asking about <b>Fees, Exams, or HOD contacts.</b>`;
+        }
+
+        chatBox.innerHTML += `<div class="bot-message">${reply}<div style="font-size:10px; text-align:right; margin-top:4px; opacity:0.5;">${timeNow()}</div></div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
