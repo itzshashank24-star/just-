@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI COLLEGE HELPDESK | Managed by Team Bug Smasher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.4);
+            --success: #10b981;
+            --danger: #ef4444;
+            --glass: rgba(255, 255, 255, 0.98);
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 0% 0%, #0f172a 0%, #1e293b 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: var(--text-dark);
+        }
+
+        .app-shell {
+            width: 600px;
+            max-width: 98%;
+            height: 96vh;
+            background: var(--glass);
+            border-radius: 32px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(20px);
+        }
+
+        .app-header {
+            background: var(--primary);
+            padding: 30px 20px 25px;
+            border-radius: 32px 32px 0 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-header h1 {
+            color: var(--accent);
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: 3px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .app-header p {
+            color: #94a3b8;
+            margin: 8px 0 0;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .lang-bar {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 18px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .lang-btn.active {
+            background: var(--accent);
+            color: var(--primary);
+            border-color: var(--accent);
+        }
+
+        .chat-area {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scrollbar-width: thin;
+        }
+
+        .chat-area::-webkit-scrollbar { width: 5px; }
+        .chat-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .bubble {
+            max-width: 88%;
+            padding: 16px 20px;
+            border-radius: 24px;
+            font-size: 14.5px;
+            line-height: 1.6;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .bot-bubble {
+            background: white;
+            color: var(--text-dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .user-bubble {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .menu-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 18px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .menu-item:hover {
+            border-color: var(--accent);
+            background: #f0f9ff;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .data-card {
+            background: #ffffff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 10px 0;
+            font-size: 13.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .action-btn {
+            display: block;
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 14px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 800;
+            margin-top: 15px;
+            font-size: 13px;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .action-btn.pay { background: var(--success); }
+        .action-btn.complaint { background: var(--danger); }
+
+        /* Module Specific Styling */
+        input#attId, textarea, select {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-family: inherit;
+        }
+
+        .input-zone {
+            padding: 20px 25px;
+            background: white;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #f1f5f9;
+            border-radius: 0 0 32px 32px;
+        }
+
+        .input-zone input {
+            flex: 1;
+            padding: 16px 24px;
+            border: 2px solid #f1f5f9;
+            border-radius: 40px;
+            outline: none;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        .input-zone input:focus { border-color: var(--accent); }
+
+        .send-trigger {
+            background: var(--primary);
+            color: var(--accent);
+            border: none;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            margin-left: 15px;
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .home-trigger {
+            position: absolute;
+            right: 30px;
+            bottom: 120px;
+            background: var(--accent);
+            color: var(--primary);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 28px;
+            box-shadow: 0 15px 30px var(--accent-glow);
+            z-index: 10;
+        }
+
+        .team-tag {
+            font-size: 11px;
+            text-align: center;
+            padding: 10px;
+            color: #94a3b8;
+            background: white;
+            border-radius: 0 0 32px 32px;
+        }
+
+        .status-dot {
+            display: none;
+            font-size: 12px;
+            color: var(--text-light);
+            margin-left: 25px;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-shell">
+    <header class="app-header">
+        <h1>AI College Helpdesk</h1>
+        <p>Managed by Team Bug Smasher | v7.2.0</p>
+        <div class="lang-bar">
+            <button class="lang-btn active" id="l-en" onclick="changeLang('en')">English</button>
+            <button class="lang-btn" id="l-hi" onclick="changeLang('hi')">हिंदी</button>
+            <button class="lang-btn" id="l-pa" onclick="changeLang('pa')">ਪੰਜਾਬੀ</button>
+        </div>
+    </header>
+
+    <main class="chat-area" id="chatbox"></main>
+    <div id="status" class="status-dot">AI is thinking...</div>
+
+    <button class="home-trigger" onclick="initChat()">🏠</button>
+
+    <footer class="input-zone">
+        <input type="text" id="userInput" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendMessage()">
+        <button class="send-trigger" onclick="sendMessage()">➤</button>
+    </footer>
+
+    <div class="team-tag">Engineered by <b>Team Bug Smasher</b> | © 2025 AI Systems</div>
+</div>
+
+<script>
+    const chatbox = document.getElementById('chatbox');
+    const userInput = document.getElementById('userInput');
+    const status = document.getElementById('status');
+    let currentLang = 'en';
+
+    /* STUDENT DB */
+    const studentDB = {
+        STU123: { name: "Aditya Verma", attendance: "84%" },
+        STU456: { name: "Riya Singh", attendance: "91%" }
+    };
+
+    const content = {
+        en: {
+            welcome: "Hello! I am your <b>AI Campus Partner</b>. How can I help you excel today?",
+            unknown: "I'm sorry, I didn't catch that. Please use the menu below for help.",
+            m_adm: "📝 Admissions", m_fee: "📊 Fees", m_course: "📚 Courses", m_pay: "💳 Pay Online",
+            m_att: "📉 Attendance", m_leave: "📝 Leave Apply", m_bus: "🚌 Bus Tracker", 
+            m_lib: "📖 Library", m_comp: "⚠️ Complaint", m_hod: "👨‍🏫 HODs"
+        },
+        hi: {
+            welcome: "नमस्ते! मैं आपका <b>AI कैंपस पार्टनर</b> हूं। मैं आपकी क्या सहायता कर सकता हूँ?",
+            unknown: "क्षमा करें, मुझे समझ नहीं आया। कृपया नीचे दिए गए मेनू का उपयोग करें।",
+            m_adm: "📝 प्रवेश", m_fee: "📊 शुल्क", m_course: "📚 पाठ्यक्रम", m_pay: "💳 भुगतान",
+            m_att: "📉 उपस्थिति", m_leave: "📝 छुट्टी आवेदन", m_bus: "🚌 बस ट्रैकर", 
+            m_lib: "📖 लाइब्रेरी", m_comp: "⚠️ शिकायत", m_hod: "👨‍🏫 विभागाध्यक्ष"
+        }
+    };
+
+    function initChat() {
+        chatbox.innerHTML = "";
+        addBot(content[currentLang].welcome);
+        renderMenu();
+    }
+
+    function changeLang(l) {
+        currentLang = l;
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`l-${l}`).classList.add('active');
+        initChat();
+    }
+
+    function renderMenu() {
+        const c = content[currentLang];
+        chatbox.innerHTML += `
+        <div class="menu-grid">
+            <div class="menu-item" onclick="action('admission')">${c.m_adm}</div>
+            <div class="menu-item" onclick="action('fees')">${c.m_fee}</div>
+            <div class="menu-item" onclick="action('courses')">${c.m_course}</div>
+            <div class="menu-item" onclick="action('attendance')">${c.m_att}</div>
+            <div class="menu-item" onclick="action('leave')">${c.m_leave}</div>
+            <div class="menu-item" onclick="action('bus')">${c.m_bus}</div>
+            <div class="menu-item" onclick="action('library')">${c.m_lib}</div>
+            <div class="menu-item" onclick="action('payment')">${c.m_pay}</div>
+            <div class="menu-item" onclick="action('hod')">${c.m_hod}</div>
+            <div class="menu-item" onclick="action('complaint')">${c.m_comp}</div>
+        </div>`;
+        scrollDown();
+    }
+
+    function action(text) {
+        userInput.value = text;
+        sendMessage();
+    }
+
+    function sendMessage() {
+        const msg = userInput.value.trim();
+        if (!msg) return;
+        addUser(msg);
+        userInput.value = "";
+        status.style.display = "block";
+        setTimeout(() => {
+            status.style.display = "none";
+            processAI(msg.toLowerCase());
+        }, 600);
+    }
+
+    function processAI(m) {
+        if (m.includes("admission")) {
+            addBot("🎓 <b>Admissions 2025-26:</b><br>Phase 1 is Open! Eligibility: 65% in PCM for B.Tech.");
+            addBot("<a href='#' class='action-btn'>Apply Online Today</a>");
+        } 
+        else if (m.includes("fees")) {
+            addBot("💰 <b>Fee Structure:</b><br>B.Tech: ₹92,000/sem<br>BCA: ₹48,000/sem<br>Hostel: ₹42,000/sem.");
+        }
+        else if (m.includes("course")) {
+            addBot("📚 <b>Courses:</b> AI & ML, Cyber Security, Data Science, MBA Global.");
+        }
+        else if (m.includes("attendance")) {
+            showAttendance();
+        }
+        else if (m.includes("leave")) {
+            showLeave();
+        }
+        else if (m.includes("bus")) {
+            showBus();
+        }
+        else if (m.includes("library")) {
+            showLibrary();
+        }
+        else if (m.includes("hod")) {
+            addBot("👨‍🏫 <b>HOD Directory:</b><br>CSE: Dr. Rajesh Kumar<br>IT: Dr. Sunita Mehra<br>MBA: Prof. Anjali Sharma.");
+        }
+        else if (m.includes("payment") || m.includes("pay")) {
+            addBot("💳 <b>Payment Gateway:</b><br>Redirecting to secure SSL portal...");
+            addBot("<button class='action-btn pay'>Proceed to Pay ➤</button>");
+        }
+        else if (m.includes("complaint")) {
+            showComplaint();
+        }
+        else {
+            addBot(content[currentLang].unknown);
+            renderMenu();
+        }
+        scrollDown();
+    }
+
+    /* MODULE FUNCTIONS */
+    function showAttendance() {
+        addBot("📊 <b>Attendance System</b>");
+        chatbox.innerHTML += `
+        <div class="bubble bot-bubble">
+            <input id="attId" placeholder="Enter Student ID (STU123)">
+            <button class="action-btn pay" onclick="checkAttendance()">Check Status</button>
+        </div>`;
+    }
+
+    function checkAttendance() {
+        const id = document.getElementById("attId").value.toUpperCase();
+        if (!studentDB[id]) {
+            addBot("❌ Student ID not found.");
+        } else {
+            addBot(`✅ <b>${studentDB[id].name}</b>, your attendance is <b>${studentDB[id].attendance}</b>`);
+        }
+        scrollDown();
+    }
+
+    function showLeave() {
+        addBot("📝 <b>Leave Application</b>");
+        chatbox.innerHTML += `
+        <div class="bubble bot-bubble">
+            <select><option>Medical Leave</option><option>Personal Leave</option></select>
+            <textarea placeholder="Enter reason here..."></textarea>
+            <button class="action-btn pay" onclick="submitLeave()">Submit Application</button>
+        </div>`;
+    }
+
+    function submitLeave() {
+        addBot("✅ Leave submitted! Reference ID: <b>#" + Math.floor(100000 + Math.random() * 900000) + "</b>");
+    }
+
+    function showBus() {
+        addBot("🚌 <b>Live Bus Tracker</b>");
+        addBot("<b>Route 1:</b> Ramesh Kumar (98765-XXXXX) - <b>10 min away</b><br><b>Route 2:</b> Suresh Singh (91234-XXXXX) - <b>18 min away</b>");
+    }
+
+    function showLibrary() {
+        addBot("📖 <b>Library Search:</b><br>1. Data Structures: <b>Available</b><br>2. OS Concepts: <b>Issued</b><br>3. AI Trends: <b>Available</b>");
+        addBot("<button class='action-btn pay' onclick='addBot(\"✅ Book Request Sent!\")'>Request Book</button>");
+    }
+
+    function showComplaint() {
+        addBot("⚠️ <b>Complaint Redressal</b>");
+        chatbox.innerHTML += `
+        <div class="bubble bot-bubble">
+            <select><option>Hostel</option><option>Faculty</option><option>Mess</option></select>
+            <textarea placeholder="Describe issue..."></textarea>
+            <button class="action-btn complaint" onclick="addBot('📮 Ticket Generated! ID: #'+Math.floor(1000+Math.random()*9000))">Submit Ticket</button>
+        </div>`;
+    }
+
+    function addBot(t) { chatbox.innerHTML += `<div class="bubble bot-bubble">${t}</div>`; }
+    function addUser(t) { chatbox.innerHTML += `<div class="bubble user-bubble">${t}</div>`; }
+    function scrollDown() { chatbox.scrollTop = chatbox.scrollHeight; }
+
+    initChat();
+</script>
+
+</body>
+</html>
