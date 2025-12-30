@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI College Helpdesk Chatbot</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.chat-container {
+    width: 450px;
+    max-width: 95%;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-header {
+    background: #0d47a1;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.chat-box {
+    height: 480px;
+    padding: 15px;
+    overflow-y: auto;
+    background: #f0f4fb;
+    flex-grow: 1;
+    scroll-behavior: smooth;
+}
+
+.bot-message, .user-message {
+    padding: 12px 16px;
+    border-radius: 15px;
+    margin-bottom: 12px;
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.5;
+    position: relative;
+    animation: fadeIn 0.5s;
+}
+
+.bot-message {
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.user-message {
+    background: #0d47a1;
+    color: white;
+    margin-left: auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.bot-message::before {
+    content: "🤖";
+    position: absolute;
+    left: -25px;
+    top: 10px;
+    font-size: 18px;
+}
+
+.user-message::before {
+    content: "🧑";
+    position: absolute;
+    left: -25px;
+    top: 10px;
+    font-size: 18px;
+}
+
+.time {
+    font-size: 10px;
+    color: #666;
+    margin-top: 4px;
+    text-align: right;
+}
+
+.chat-input {
+    display: flex;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+.chat-input button {
+    background: #0d47a1;
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.chat-input button:hover {
+    background: #093170;
+}
+
+.quick-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px;
+    background: #e0f0ff;
+    justify-content: center;
+}
+
+.quick-btns button {
+    font-size: 13px;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #90caf9;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.quick-btns button:hover {
+    background: #64b5f6;
+    transform: translateY(-2px);
+}
+
+.info-card {
+    background: #e3f2fd;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-top: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.info-card:hover {
+    transform: scale(1.02);
+    background: #bbdefb;
+}
+
+.info-card img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.info-card a {
+    color: #0d47a1;
+    text-decoration: none;
+}
+.info-card a:hover {
+    text-decoration: underline;
+}
+
+.typing {
+    font-style: italic;
+    color: #555;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">AI College Helpdesk</div>
+
+    <div class="chat-box" id="chatBox">
+        <div class="bot-message">
+            Hello 👋 I’m your AI College Helpdesk Assistant.<br>
+            I can help you with complaints, fees, exams, notices, HOD contacts, anti-ragging, and more.
+            <div class="time">Now</div>
+        </div>
+    </div>
+
+    <div class="quick-btns">
+        <button onclick="quickAsk('anti ragging')">Anti-Ragging</button>
+        <button onclick="quickAsk('office hours')">Office Hours</button>
+        <button onclick="quickAsk('admin workload')">Admin Issues</button>
+        <button onclick="quickAsk('notices')">Notices</button>
+        <button onclick="quickAsk('queues')">Helpdesk Queue</button>
+        <button onclick="quickAsk('hod contacts')">HOD Contacts</button>
+        <button onclick="quickAsk('fee exam')">Fee/Exam</button>
+    </div>
+
+    <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Type your query..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+function timeNow() {
+    return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+function quickAsk(text) {
+    document.getElementById("userInput").value = text;
+    sendMessage();
+}
+
+function sendMessage() {
+    const input = document.getElementById("userInput");
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const chatBox = document.getElementById("chatBox");
+
+    // User message
+    chatBox.innerHTML += `
+        <div class="user-message">${msg}<div class="time">${timeNow()}</div></div>
+    `;
+    input.value = "";
+
+    // Typing indicator
+    const typing = document.createElement("div");
+    typing.className = "bot-message typing";
+    typing.innerText = "🤖 AI is typing...";
+    chatBox.appendChild(typing);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    setTimeout(() => {
+        typing.remove();
+        chatBox.appendChild(generateReply(msg.toLowerCase()));
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, 1200);
+}
+
+function generateReply(message) {
+    const chatBox = document.getElementById("chatBox");
+    let reply = "";
+
+    if (message.includes("ragging")) {
+        reply = `🚨 <b>Anti-Ragging Support (24/7)</b><br>
+        <div class="info-card">
+            <img src="https://img.icons8.com/color/48/000000/phone.png"/> Hotline: +91-9876543210
+        </div>
+        <div class="info-card">
+            <img src="https://img.icons8.com/color/48/000000/link.png"/> Portal: <a href="https://antiragging.in" target="_blank">Click Here</a>
+        </div>
+        <div class="info-card">All complaints are confidential.</div>`;
+
+    } else if (message.includes("admin") || message.includes("workload")) {
+        reply = `📂 <b>Administrative Workload</b><br>
+        <div class="info-card">Manual helpdesk handling causes delays & errors.</div>
+        <div class="info-card">AI automates repetitive queries, saving staff time.</div>`;
+
+    } else if (message.includes("office")) {
+        reply = `🏢 <b>Office Hours</b><br>
+        <div class="info-card">Helpdesk: Mon-Fri, 9AM - 5PM</div>
+        <div class="info-card">AI Chatbot available 24/7</div>`;
+
+    } else if (message.includes("queue") || message.includes("counter")) {
+        reply = `⏳ <b>Helpdesk Queues</b><br>
+        <div class="info-card">Long queues at counters are common.</div>
+        <div class="info-card">AI provides instant answers.</div>`;
+
+    } else if (message.includes("notice") || message.includes("upload") || message.includes("form")) {
+        reply = `📢 <b>Notice & Uploads</b><br>
+        <div class="info-card">Important notices/forms uploaded instantly.</div>
+        <div class="info-card">Reduces delays & missed deadlines.</div>`;
+
+    } else if (message.includes("hod") || message.includes("contacts")) {
+        reply = `<b>👨‍🏫 HOD Contacts</b><br>
+        <div class="info-card"><img src="https://img.icons8.com/color/48/000000/administrator-male.png"/> CS: Dr. Rajesh Kumar - +91-9876501234</div>
+        <div class="info-card"><img src="https://img.icons8.com/color/48/000000/administrator-male.png"/> EE: Dr. Meera Singh - +91-9876505678</div>
+        <div class="info-card"><img src="https://img.icons8.com/color/48/000000/administrator-male.png"/> ME: Dr. Amit Sharma - +91-9876509123</div>
+        <div class="info-card"><img src="https://img.icons8.com/color/48/000000/administrator-female.png"/> CE: Dr. Sunita Verma - +91-9876512345</div>`;
+
+    } else if (message.includes("fee") || message.includes("exam") || message.includes("result")) {
+        reply = `💰 <b>Fees / Exams / Results</b><br>
+        <div class="info-card">Pay fees online via student portal.</div>
+        <div class="info-card">Exam timetable & admit cards available online.</div>
+        <div class="info-card">Results updated regularly on portal.</div>`;
+
+    } else {
+        reply = `🤖 <b>I can help with:</b><br>
+        <div class="info-card">Anti-ragging complaints & portal</div>
+        <div class="info-card">Administrative workload</div>
+        <div class="info-card">Office hours & contacts</div>
+        <div class="info-card">Helpdesk queues</div>
+        <div class="info-card">Notices & uploads</div>
+        <div class="info-card">HOD Contacts</div>
+        <div class="info-card">Fees, Exams & Results</div>
+        Please type your query or use the quick buttons above.`;
+    }
+
+    const div = document.createElement("div");
+    div.className = "bot-message";
+    div.innerHTML = reply + `<div class="time">${timeNow()}</div>`;
+    return div;
+}
+</script>
+</body>
+</html>
