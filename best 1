@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSMNRU AI College Helpdesk</title>
+    <style>
+        :root {
+            --primary: #0d47a1;
+            --secondary: #90caf9;
+            --bg: #f0f4fb;
+            --text: #333;
+            --card: #ffffff;
+            --accent: #ff6b6b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            transition: 0.3s;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .dark-mode {
+            --bg: #1a1a1a;
+            --text: #f0f0f0;
+            --card: #2d2d2d;
+            --primary: #1565c0;
+        }
+
+        .chat-container {
+            width: 520px;
+            max-width: 95%;
+            height: 90vh;
+            background: var(--card);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.35);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1565c0 100%);
+            color: white;
+            padding: 18px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header-title {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-width: 200px;
+        }
+
+        .header-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .header-btns button, .lang-selector {
+            background: rgba(255,255,255,0.25);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .header-btns button:hover, .lang-selector:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+        }
+
+        .lang-selector {
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            padding: 18px;
+            overflow-y: auto;
+            background: var(--bg);
+            scroll-behavior: smooth;
+        }
+
+        .bot-message, .user-message {
+            padding: 13px 16px;
+            border-radius: 18px;
+            margin-bottom: 13px;
+            max-width: 85%;
+            font-size: 14px;
+            line-height: 1.6;
+            animation: fadeIn 0.4s ease;
+            word-wrap: break-word;
+        }
+
+        .bot-message {
+            background: var(--card);
+            color: var(--text);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        .timestamp {
+            font-size: 11px;
+            text-align: right;
+            margin-top: 5px;
+            opacity: 0.65;
+        }
+
+        .action-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .action-btns button {
+            font-size: 12px;
+            border: 1px solid var(--primary);
+            padding: 7px 12px;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .action-btns button:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .quick-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            padding: 12px;
+            background: var(--bg);
+            border-top: 2px solid rgba(0,0,0,0.08);
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .quick-btns button {
+            font-size: 12px;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            background: var(--secondary);
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .quick-btns button:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 12px;
+            background: var(--card);
+            border-top: 2px solid #e0e0e0;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(13, 71, 161, 0.2);
+        }
+
+        .chat-input button {
+            background: linear-gradient(135deg, var(--primary), #1565c0);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .chat-input button:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #f5c6cb;
+            font-size: 13px;
+        }
+
+        .success-msg {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #c3e6cb;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, var(--secondary) 0%, rgba(144, 202, 249, 0.5) 100%);
+            color: var(--primary);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .portal-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .portal-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .yt-link {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(255, 0, 0, 0.3);
+        }
+
+        .yt-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+        }
+
+        .complaint-box {
+            background: linear-gradient(135deg, #ff6b6b, #ff8787);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(255, 107, 107, 0.3);
+        }
+
+        .complaint-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .footer-text {
+            font-size: 10px;
+            text-align: center;
+            padding: 8px;
+            opacity: 0.6;
+            color: var(--text);
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                opacity: 0.5;
+                transform: translateY(0);
+            }
+            40% {
+                opacity: 1;
+                transform: translateY(-8px);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--card);
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            color: var(--text);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+        }
+
+        .modal h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .modal p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="header-title">
+            🎓 DSMNRU Helpdesk
+        </div>
+        <div class="header-btns">
+            <select class="lang-selector" id="langSelector" onchange="changeLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="hi">हिंदी</option>
+            </select>
+            <button onclick="toggleDarkMode()" id="themeBtn" title="Toggle Dark Mode">🌙</button>
+            <button onclick="clearChat()" title="Clear Chat">🗑️</button>
+        </div>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        <div class="bot-message">
+            <b id="welcome-title">Welcome to DSMNRU!</b> 👋<br>
+            <span id="welcome-desc">I'm your AI assistant for <b>Dr. Shakuntala Misra National Rehabilitation University, Lucknow</b>.</span><br><br>
+            <b id="askAbout">Ask me about:</b><br>
+            📚 <span id="t-courses">Courses & Programs</span><br>
+            💰 <span id="t-fees">Fees & Scholarships</span><br>
+            📝 <span id="t-admissions">Admissions</span><br>
+            🏫 <span id="t-campus">Campus & Facilities</span><br>
+            💼 <span id="t-placements">Placements</span><br>
+            📄 <span id="t-pyq">PYQ Papers & Syllabus</span>
+        </div>
+    </div>
+
+    <div class="quick-btns" id="faqSection">
+        <button onclick="quickAsk('courses')">📚 <span id="btn-courses">Courses</span></button>
+        <button onclick="quickAsk('fees')">💰 <span id="btn-fees">Fees</span></button>
+        <button onclick="quickAsk('admission')">📝 <span id="btn-admission">Admission</span></button>
+        <button onclick="quickAsk('facilities')">🏫 <span id="btn-facilities">Facilities</span></button>
+        <button onclick="quickAsk('placement')">💼 <span id="btn-placement">Placement</span></button>
+        <button onclick="quickAsk('contact')">📞 <span id="btn-contact">Contact</span></button>
+        <button onclick="quickAsk('scholarship')">🎓 <span id="btn-scholarship">Scholarships</span></button>
+        <button onclick="quickAsk('samarth')">🔐 <span id="btn-samarth">Samarth Portal</span></button>
+        <button onclick="quickAsk('youtube')">▶️ <span id="btn-youtube">YouTube Updates</span></button>
+    </div>
+
+    <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Ask about college..." autocomplete="off">
+        <button onclick="sendMessage()" title="Send Message">➤</button>
+    </div>
+
+    <div class="footer-text">
+        Managed by <b>Utkarsh Mishra</b> | DSMNRU Student Support
+    </div>
+</div>
+
+<div id="complaintModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeComplaintModal()">&times;</span>
+        <h2 id="modal-title">Anti-Ragging Complaint Portal</h2>
+        <p id="modal-desc">Click below to access the official anti-ragging portal:</p>
+        <button onclick="openAntiRaggingPortal()" style="width: 100%; padding: 12px; background: #ff6b6b; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: 600;">
+            📋 <span id="open-portal">Open Anti-Ragging Portal</span>
+        </button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById("chatBox");
+    const userInput = document.getElementById("userInput");
+    let currentLang = "en";
+
+    const translations = {
+        en: {
+            askAbout: "Ask me about:",
+            courses: "Courses & Programs",
+            fees: "Fees & Scholarships",
+            admissions: "Admissions",
+            campus: "Campus & Facilities",
+            placements: "Placements",
+            pyq: "PYQ Papers & Syllabus",
+            btnCourses: "Courses",
+            btnFees: "Fees",
+            btnAdmission: "Admission",
+            btnFacilities: "Facilities",
+            btnPlacement: "Placement",
+            btnContact: "Contact",
+            btnScholarship: "Scholarships",
+            btnSamarth: "Samarth Portal",
+            btnYoutube: "YouTube Updates",
+            welcome: "Welcome to DSMNRU! 👋",
+            welcomeDesc: "I'm your AI assistant for Dr. Shakuntala Misra National Rehabilitation University, Lucknow.",
+            modalTitle: "Anti-Ragging Complaint Portal",
+            modalDesc: "Click below to access the official anti-ragging portal:",
+            openPortal: "Open Anti-Ragging Portal"
+        },
+        hi: {
+            askAbout: "मुझसे पूछें:",
+            courses: "पाठ्यक्रम और प्रोग्राम",
+            fees: "फीस और छात्रवृत्ति",
+            admissions: "प्रवेश",
+            campus: "परिसर और सुविधाएं",
+            placements: "प्लेसमेंट",
+            pyq: "पिछले प्रश्न पत्र",
+            btnCourses: "कोर्स",
+            btnFees: "फीस",
+            btnAdmission: "प्रवेश",
+            btnFacilities: "सुविधाएं",
+            btnPlacement: "प्लेसमेंट",
+            btnContact: "संपर्क",
+            btnScholarship: "छात्रवृत्ति",
+            btnSamarth: "समर्थ पोर्टल",
+            btnYoutube: "यूट्यूब अपडेट",
+            welcome: "DSMNRU में आपका स्वागत है! 👋",
+            welcomeDesc: "मैं आपके लिए डॉ. शकुंतला मिश्रा राष्ट्रीय पुनर्वास विश्वविद्यालय, लखनऊ का एआई सहायक हूँ।",
+            modalTitle: "रैगिंग विरोधी शिकायत पोर्टल",
+            modalDesc: "आधिकारिक रैगिंग विरोधी पोर्टल तक पहुंचने के लिए नीचे क्लिक करें:",
+            openPortal: "रैगिंग विरोधी पोर्टल खोलें"
+        }
+    };
+
+    const knowledgeBase = {
+        courses: {
+            en: "DSMNRU offers 40+ undergraduate, postgraduate and doctoral programs including: B.Tech (CSE, AI-DS, ECE, Mechanical, Civil, Electrical), B.Com, B.Sc, BA, BBA, Law, BASLP, MBA, MCA, M.Tech, M.Sc, M.Com, LLM, M.Ed (Special Education), B.Ed (Special Education), BPO, MPO, and PhD programs across multiple disciplines.",
+            hi: "DSMNRU 40+ स्नातक, स्नातकोत्तर और डॉक्टरेट कार्यक्रम प्रदान करता है जिनमें शामिल हैं: B.Tech (CSE, AI-DS, ECE, मैकेनिकल, सिविल, विद्युत), B.Com, B.Sc, BA, BBA, कानून, BASLP, MBA, MCA, M.Tech, M.Sc, M.Com, LLM, M.Ed (विशेष शिक्षा), B.Ed (विशेष शिक्षा), BPO, MPO, और PhD प्रोग्राम।"
+        },
+        fees: {
+            en: "Approximate fees (per year): B.Tech ₹90,000-1.2L | MBA ₹35,000-45,000 | MCA ₹30,000-40,000 | BA/B.Sc/B.Com ₹8,000-15,000 | Law ₹20,000-30,000 | BASLP ₹12,000-35,000. NOTE: Divyang (disabled) students get significant fee waivers and scholarships!",
+            hi: "अनुमानित शुल्क (प्रति वर्ष): B.Tech ₹90,000-1.2L | MBA ₹35,000-45,000 | MCA ₹30,000-40,000 | BA/B.Sc/B.Com ₹8,000-15,000 | कानून ₹20,000-30,000 | BASLP ₹12,000-35,000। नोट: दिव्यांग छात्रों को महत्वपूर्ण फीस छूट और छात्रवृत्ति मिलती है!"
+        },
+        admission: {
+            en: "UG Admissions: Through JEE Main / CUET-UG entrance exam + counseling. PG Admissions: Through CUET-PG or merit-based. PhD: Master's degree + entrance exam/interview. 50% seats are reserved for differently-abled students in all programs. Cut-offs vary by category.",
+            hi: "UG प्रवेश: JEE Main / CUET-UG प्रवेश परीक्षा + परामर्श के माध्यम से। PG प्रवेश: CUET-PG या योग्यता आधारित। PhD: मास्टर्स डिग्री + प्रवेश परीक्षा/साक्षात्कार। सभी कार्यक्रमों में विकलांग छात्रों के लिए 50% आसन आरक्षित हैं।"
+        },
+        facilities: {
+            en: "Campus facilities include: Barrier-free 131-acre campus with ramps & elevators | Library with 4000+ books & Braille resources | Smart classrooms with WiFi | Separate boys & girls hostels | Medical center (24/7) | Physiotherapy unit | Sports complex | Cafeteria | IT labs | Assistive technology labs.",
+            hi: "परिसर की सुविधाओं में शामिल हैं: बाधा-मुक्त 131 एकड़ परिसर | पुस्तकालय 4000+ किताबें और ब्रेल संसाधन | WiFi के साथ स्मार्ट कक्षाएं | अलग लड़के और लड़कियों का हॉस्टल | चिकित्सा केंद्र (24/7) | फिजियोथेरेपी यूनिट | खेल परिसर | कैंटीन | IT लैब्स।"
+        },
+        placement: {
+            en: "Average package: ₹3.2-4.8 LPA. Top placements: MBA up to ₹12.16 LPA, B.Tech up to ₹9 LPA. Recruiters: Wipro, HCL, IBM, Amazon, Dabur, Axis Bank, HDFC, Reliance. Active placement cell with training & MoUs.",
+            hi: "औसत पैकेज: ₹3.2-4.8 LPA। शीर्ष प्लेसमेंट: MBA ₹12.16 LPA तक, B.Tech ₹9 LPA तक। नियोक्ता: Wipro, HCL, IBM, Amazon, Dabur, Axis Bank, HDFC, Reliance। प्रशिक्षण और MoUs के साथ सक्रिय प्लेसमेंट सेल।"
+        },
+        scholarships: {
+            en: "Available scholarships: NHFDC Scholarship (for ≥40% disability) | UP State Scholarship | Central Govt Divyang Scholarships | Fee reimbursement (category-wise) | Merit-based scholarships. Divyang students receive tuition waiver + maintenance + book support.",
+            hi: "उपलब्ध छात्रवृत्ति: NHFDC छात्रवृत्ति (≥40% विकलांगता के लिए) | UP राज्य छात्रवृत्ति | केंद्रीय सरकार दिव्यांग छात्रवृत्ति | फीस प्रतिपूर्ति | योग्यता-आधारित छात्रवृत्ति। दिव्यांग छात्रों को ट्यूशन माफी + रखरखाव + किताब समर्थन मिलता है।"
+        },
+        contact: {
+            en: "Address: Mohaan Road, Lucknow, UP - 226017 | Website: https://dsmru.up.nic.in | Registrar: +91 8887222002 | Registrar Email: registrar@dsmnru.ac.in | VC: Prof. Sanjay Singh (vc@dsmnru.ac.in)",
+            hi: "पता: मोहान रोड, लखनऊ, UP - 226017 | वेबसाइट: https://dsmru.up.nic.in | रजिस्ट्रार: +91 8887222002 | रजिस्ट्रार ईमेल: registrar@dsmnru.ac.in | VC: प्रो. संजय सिंह (vc@dsmnru.ac.in)"
+        },
+        pyq: {
+            en: "📚 PYQ Papers & Syllabus Resources Available!\n\nAccess previous year question papers, syllabi, and exam materials at:\nhttps://dsmnru-pyq.netlify.app/\n\nAlso, join our PYQ & Syllabus Bot for instant access:\nhttps://t.me/dsmnru_pyq_syll_bot\n\nThis is managed by Utkarsh Mishra and contains comprehensive study materials for all programs.",
+            hi: "📚 पिछले वर्ष के प्रश्न पत्र और पाठ्यक्रम उपलब्ध!\n\nPYQ संसाधनों के लिए जाएं:\nhttps://dsmnru-pyq.netlify.app/\n\nTelegram बॉट से जुड़ें:\nhttps://t.me/dsmnru_pyq_syll_bot\n\nयह Utkarsh Mishra द्वारा प्रबंधित है।"
+        },
+        samarth: {
+            en: "🔐 DSMNRU Samarth Portal\n\nThe Samarth Portal is your gateway to accessing academic records, course registrations, and grades online.\n\nClick the button below to access the portal:",
+            hi: "🔐 DSMNRU समर्थ पोर्टल\n\nसमर्थ पोर्टल आपकी शैक्षणिक रिकॉर्ड, पाठ्यक्रम पंजीकरण और ग्रेड ऑनलाइन देखने का प्रवेश द्वार है।\n\nपोर्टल तक पहुंचने के लिए नीचे क्लिक करें:"
+        },
+        youtube: {
+            en: "▶️ DSMNRU YouTube Updates Channel\n\nStay updated with the latest news, notifications, and announcements from DSMNRU!\n\nSubscribe to our YouTube channel for:\n📢 Important announcements\n📅 Event coverage\n👨‍🎓 Student testimonials\n🎥 Campus tours and updates\n\nClick the button below to visit our channel:",
+            hi: "▶️ DSMNRU यूट्यूब अपडेट चैनल\n\nDSMNRU से नवीनतम समाचार, सूचनाएं और घोषणाएं के साथ अपडेट रहें!\n\nहमारे यूट्यूब चैनल को सब्सक्राइब करें:\n📢 महत्वपूर्ण घोषणाएं\n📅 कार्यक्रम कवरेज\n👨‍🎓 छात्र प्रशंसापत्र\n🎥 परिसर दौरे और अपडेट\n\nचैनल पर जाने के लिए नीचे क्लिक करें:"
+        }
+    };
+
+    // Initialize
+    window.addEventListener("load", () => {
+        const darkModeEnabled = localStorage.getItem("darkMode") === "true";
+        if (darkModeEnabled) {
+            document.body.classList.add('dark-mode');
+            document.getElementById("themeBtn").innerText = "☀️";
+        }
+    });
+
+    userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessage();
+    });
+
+    function changeLanguage(lang) {
+        currentLang = lang;
+        updateUILanguage();
+    }
+
+    function updateUILanguage() {
+        const t = translations[currentLang];
+        document.getElementById("askAbout").innerText = t.askAbout;
+        document.getElementById("t-courses").innerText = t.courses;
+        document.getElementById("t-fees").innerText = t.fees;
+        document.getElementById("t-admissions").innerText = t.admissions;
+        document.getElementById("t-campus").innerText = t.campus;
+        document.getElementById("t-placements").innerText = t.placements;
+        document.getElementById("t-pyq").innerText = t.pyq;
+        document.getElementById("btn-courses").innerText = t.btnCourses;
+        document.getElementById("btn-fees").innerText = t.btnFees;
+        document.getElementById("btn-admission").innerText = t.btnAdmission;
+        document.getElementById("btn-facilities").innerText = t.btnFacilities;
+        document.getElementById("btn-placement").innerText = t.btnPlacement;
+        document.getElementById("btn-contact").innerText = t.btnContact;
+        document.getElementById("btn-scholarship").innerText = t.btnScholarship;
+        document.getElementById("btn-samarth").innerText = t.btnSamarth;
+        document.getElementById("btn-youtube").innerText = t.btnYoutube;
+        document.getElementById("modal-title").innerText = t.modalTitle;
+        document.getElementById("modal-desc").innerText = t.modalDesc;
+        document.getElementById("open-portal").innerText = t.openPortal;
+        document.getElementById("welcome-title").innerText = t.welcome;
+        document.getElementById("welcome-desc").innerHTML = t.welcomeDesc;
+    }
+
+    function sendMessage() {
+        const msg = userInput.value.trim();
+        if (msg === "") return;
+
+        addMessage(msg, "user");
+        userInput.value = "";
+
+        setTimeout(() => {
+            processQuery(msg);
+        }, 300);
+    }
+
+    function addMessage(text, sender) {
+        const msgDiv = document.createElement("div");
+        msgDiv.className = sender === "user" ? "user-message" : "bot-message";
+        msgDiv.innerHTML = text;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function processQuery(query) {
+        const lowerQuery = query.toLowerCase();
+        let response = "";
+
+        if (lowerQuery.includes("course") || lowerQuery.includes("कोर्स") || lowerQuery.includes("program")) {
+            response = knowledgeBase.courses[currentLang];
+        } else if (lowerQuery.includes("fee") || lowerQuery.includes("cost") || lowerQuery.includes("फीस")) {
+            response = knowledgeBase.fees[currentLang];
+        } else if (lowerQuery.includes("admission") || lowerQuery.includes("admit") || lowerQuery.includes("प्रवेश")) {
+            response = knowledgeBase.admission[currentLang];
+        } else if (lowerQuery.includes("facility") || lowerQuery.includes("campus") || lowerQuery.includes("सुविधा")) {
+            response = knowledgeBase.facilities[currentLang];
+        } else if (lowerQuery.includes("place") || lowerQuery.includes("job") || lowerQuery.includes("प्लेसमेंट")) {
+            response = knowledgeBase.placement[currentLang];
+        } else if (lowerQuery.includes("scholar") || lowerQuery.includes("छात्रवृत्ति")) {
+            response = knowledgeBase.scholarships[currentLang];
+        } else if (lowerQuery.includes("contact") || lowerQuery.includes("phone") || lowerQuery.includes("संपर्क")) {
+            response = knowledgeBase.contact[currentLang];
+        } else if (lowerQuery.includes("pyq") || lowerQuery.includes("question") || lowerQuery.includes("paper") || lowerQuery.includes("सिलेबस")) {
+            response = knowledgeBase.pyq[currentLang];
+        } else if (lowerQuery.includes("samarth") || lowerQuery.includes("portal") || lowerQuery.includes("समर्थ")) {
+            response = knowledgeBase.samarth[currentLang] + "<br><div class='portal-link' onclick=\"openSamarthPortal()\">🔐 " + (currentLang === "en" ? "Open Samarth Portal" : "समर्थ पोर्टल खोलें") + "</div>";
+        } else if (lowerQuery.includes("youtube") || lowerQuery.includes("update") || lowerQuery.includes("यूट्यूब") || lowerQuery.includes("अपडेट")) {
+            response = knowledgeBase.youtube[currentLang] + "<br><div class='yt-link' onclick=\"openYouTubeChannel()\">▶️ " + (currentLang === "en" ? "Visit YouTube Channel" : "यूट्यूब चैनल पर जाएं") + "</div>";
+        } else if (lowerQuery.includes("ragg") || lowerQuery.includes("रैगिंग")) {
+            openComplaintModal();
+            return;
+        } else {
+            response = currentLang === "en" ? "I didn't quite understand that. Please ask about courses, fees, admissions, campus, placements, scholarships, contact info, or PYQ papers." : "मुझे समझ नहीं आया। कृपया कोर्स, फीस, प्रवेश, परिसर, प्लेसमेंट, छात्रवृत्ति, संपर्क, या पिछले प्रश्न पत्र के बारे में पूछें।";
+        }
+
+        addMessage(response, "bot");
+    }
+
+    function quickAsk(topic) {
+        const queries = {
+            courses: "Tell me about courses offered at DSMNRU",
+            fees: "What are the fee structures?",
+            admission: "How do admissions work?",
+            facilities: "What are the campus facilities?",
+            placement: "Tell me about placements",
+            contact: "What is the contact information?",
+            scholarship: "What scholarships are available?",
+            samarth: "Tell me about Samarth Portal",
+            youtube: "Tell me about YouTube updates"
+        };
+
+        const hiQueries = {
+            courses: "DSMNRU में कौन से कोर्स हैं?",
+            fees: "फीस कितनी है?",
+            admission: "प्रवेश कैसे होता है?",
+            facilities: "परिसर में कौन सी सुविधाएं हैं?",
+            placement: "प्लेसमेंट के बारे में बताएं",
+            contact: "संपर्क जानकारी क्या है?",
+            scholarship: "कौन सी छात्रवृत्ति उपलब्ध है?",
+            samarth: "समर्थ पोर्टल के बारे में बताएं",
+            youtube: "यूट्यूब अपडेट के बारे में बताएं"
+        };
+
+        const query = currentLang === "en" ? queries[topic] : hiQueries[topic];
+        userInput.value = query;
+        sendMessage();
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem("darkMode", isDark);
+        document.getElementById("themeBtn").innerText = isDark ? "☀️" : "🌙";
+    }
+
+    function clearChat() {
+        if (confirm(currentLang === "en" ? "Clear all messages?" : "सभी संदेश साफ करें?")) {
+            chatBox.innerHTML = "<div class='bot-message'><b id='welcome-title2'>" + translations[currentLang].welcome + "</b> 👋</div>";
+        }
+    }
+
+    function openSamarthPortal() {
+        window.open("https://dsmru.samarth.edu.in/index.php/site/login", "_blank");
+    }
+
+    function openYouTubeChannel() {
+        window.open("https://www.youtube.com/@DSMNRUUpdates?app=desktop", "_blank");
+    }
+
+    function openComplaintModal() {
+        document.getElementById("complaintModal").style.display = "block";
+    }
+
+    function closeComplaintModal() {
+        document.getElementById("complaintModal").style.display = "none";
+    }
+
+    function openAntiRaggingPortal() {
+        alert(currentLang === "en" ? "Please contact DSMNRU administration for anti-ragging complaints." : "कृपया रैगिंग शिकायतों के लिए DSMNRU प्रशासन से संपर्क करें।");
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("complaintModal");
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    updateUILanguage();
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSMNRU AI College Helpdesk</title>
+    <style>
+        :root {
+            --primary: #0d47a1;
+            --secondary: #90caf9;
+            --bg: #f0f4fb;
+            --text: #333;
+            --card: #ffffff;
+            --accent: #ff6b6b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            transition: 0.3s;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .dark-mode {
+            --bg: #1a1a1a;
+            --text: #f0f0f0;
+            --card: #2d2d2d;
+            --primary: #1565c0;
+        }
+
+        .chat-container {
+            width: 520px;
+            max-width: 95%;
+            height: 90vh;
+            background: var(--card);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.35);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1565c0 100%);
+            color: white;
+            padding: 18px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header-title {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-width: 200px;
+        }
+
+        .header-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .header-btns button, .lang-selector {
+            background: rgba(255,255,255,0.25);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .header-btns button:hover, .lang-selector:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+        }
+
+        .lang-selector {
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            padding: 18px;
+            overflow-y: auto;
+            background: var(--bg);
+            scroll-behavior: smooth;
+        }
+
+        .bot-message, .user-message {
+            padding: 13px 16px;
+            border-radius: 18px;
+            margin-bottom: 13px;
+            max-width: 85%;
+            font-size: 14px;
+            line-height: 1.6;
+            animation: fadeIn 0.4s ease;
+            word-wrap: break-word;
+        }
+
+        .bot-message {
+            background: var(--card);
+            color: var(--text);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        .timestamp {
+            font-size: 11px;
+            text-align: right;
+            margin-top: 5px;
+            opacity: 0.65;
+        }
+
+        .action-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .action-btns button {
+            font-size: 12px;
+            border: 1px solid var(--primary);
+            padding: 7px 12px;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .action-btns button:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .quick-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            padding: 12px;
+            background: var(--bg);
+            border-top: 2px solid rgba(0,0,0,0.08);
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .quick-btns button {
+            font-size: 12px;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            background: var(--secondary);
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .quick-btns button:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 12px;
+            background: var(--card);
+            border-top: 2px solid #e0e0e0;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(13, 71, 161, 0.2);
+        }
+
+        .chat-input button {
+            background: linear-gradient(135deg, var(--primary), #1565c0);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .chat-input button:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #f5c6cb;
+            font-size: 13px;
+        }
+
+        .success-msg {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #c3e6cb;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, var(--secondary) 0%, rgba(144, 202, 249, 0.5) 100%);
+            color: var(--primary);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .portal-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .portal-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .yt-link {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(255, 0, 0, 0.3);
+        }
+
+        .yt-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+        }
+
+        .complaint-box {
+            background: linear-gradient(135deg, #ff6b6b, #ff8787);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(255, 107, 107, 0.3);
+        }
+
+        .complaint-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .footer-text {
+            font-size: 10px;
+            text-align: center;
+            padding: 8px;
+            opacity: 0.6;
+            color: var(--text);
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                opacity: 0.5;
+                transform: translateY(0);
+            }
+            40% {
+                opacity: 1;
+                transform: translateY(-8px);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--card);
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            color: var(--text);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+        }
+
+        .modal h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .modal p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="header-title">
+            🎓 DSMNRU Helpdesk
+        </div>
+        <div class="header-btns">
+            <select class="lang-selector" id="langSelector" onchange="changeLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="hi">हिंदी</option>
+            </select>
+            <button onclick="toggleDarkMode()" id="themeBtn" title="Toggle Dark Mode">🌙</button>
+            <button onclick="clearChat()" title="Clear Chat">🗑️</button>
+        </div>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        <div class="bot-message">
+            <b id="welcome-title">Welcome to DSMNRU!</b> 👋<br>
+            <span id="welcome-desc">I'm your AI assistant for <b>Dr. Shakuntala Misra National Rehabilitation University, Lucknow</b>.</span><br><br>
+            <b id="askAbout">Ask me about:</b><br>
+            📚 <span id="t-courses">Courses & Programs</span><br>
+            💰 <span id="t-fees">Fees & Scholarships</span><br>
+            📝 <span id="t-admissions">Admissions</span><br>
+            🏫 <span id="t-campus">Campus & Facilities</span><br>
+            💼 <span id="t-placements">Placements</span><br>
+            📄 <span id="t-pyq">PYQ Papers & Syllabus</span>
+        </div>
+    </div>
+
+    <div class="quick-btns" id="faqSection">
+        <button onclick="quickAsk('courses')">📚 <span id="btn-courses">Courses</span></button>
+        <button onclick="quickAsk('fees')">💰 <span id="btn-fees">Fees</span></button>
+        <button onclick="quickAsk('admission')">📝 <span id="btn-admission">Admission</span></button>
+        <button onclick="quickAsk('facilities')">🏫 <span id="btn-facilities">Facilities</span></button>
+        <button onclick="quickAsk('placement')">💼 <span id="btn-placement">Placement</span></button>
+        <button onclick="quickAsk('contact')">📞 <span id="btn-contact">Contact</span></button>
+        <button onclick="quickAsk('scholarship')">🎓 <span id="btn-scholarship">Scholarships</span></button>
+        <button onclick="quickAsk('samarth')">🔐 <span id="btn-samarth">Samarth Portal</span></button>
+        <button onclick="quickAsk('youtube')">▶️ <span id="btn-youtube">YouTube Updates</span></button>
+    </div>
+
+    <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Ask about college..." autocomplete="off">
+        <button onclick="sendMessage()" title="Send Message">➤</button>
+    </div>
+
+    <div class="footer-text">
+        Managed by <b>Utkarsh Mishra</b> | DSMNRU Student Support
+    </div>
+</div>
+
+<div id="complaintModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeComplaintModal()">&times;</span>
+        <h2 id="modal-title">Anti-Ragging Complaint Portal</h2>
+        <p id="modal-desc">Click below to access the official anti-ragging portal:</p>
+        <button onclick="openAntiRaggingPortal()" style="width: 100%; padding: 12px; background: #ff6b6b; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: 600;">
+            📋 <span id="open-portal">Open Anti-Ragging Portal</span>
+        </button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById("chatBox");
+    const userInput = document.getElementById("userInput");
+    let currentLang = "en";
+
+    const translations = {
+        en: {
+            askAbout: "Ask me about:",
+            courses: "Courses & Programs",
+            fees: "Fees & Scholarships",
+            admissions: "Admissions",
+            campus: "Campus & Facilities",
+            placements: "Placements",
+            pyq: "PYQ Papers & Syllabus",
+            btnCourses: "Courses",
+            btnFees: "Fees",
+            btnAdmission: "Admission",
+            btnFacilities: "Facilities",
+            btnPlacement: "Placement",
+            btnContact: "Contact",
+            btnScholarship: "Scholarships",
+            btnSamarth: "Samarth Portal",
+            btnYoutube: "YouTube Updates",
+            welcome: "Welcome to DSMNRU! 👋",
+            welcomeDesc: "I'm your AI assistant for Dr. Shakuntala Misra National Rehabilitation University, Lucknow.",
+            modalTitle: "Anti-Ragging Complaint Portal",
+            modalDesc: "Click below to access the official anti-ragging portal:",
+            openPortal: "Open Anti-Ragging Portal"
+        },
+        hi: {
+            askAbout: "मुझसे पूछें:",
+            courses: "पाठ्यक्रम और प्रोग्राम",
+            fees: "फीस और छात्रवृत्ति",
+            admissions: "प्रवेश",
+            campus: "परिसर और सुविधाएं",
+            placements: "प्लेसमेंट",
+            pyq: "पिछले प्रश्न पत्र",
+            btnCourses: "कोर्स",
+            btnFees: "फीस",
+            btnAdmission: "प्रवेश",
+            btnFacilities: "सुविधाएं",
+            btnPlacement: "प्लेसमेंट",
+            btnContact: "संपर्क",
+            btnScholarship: "छात्रवृत्ति",
+            btnSamarth: "समर्थ पोर्टल",
+            btnYoutube: "यूट्यूब अपडेट",
+            welcome: "DSMNRU में आपका स्वागत है! 👋",
+            welcomeDesc: "मैं आपके लिए डॉ. शकुंतला मिश्रा राष्ट्रीय पुनर्वास विश्वविद्यालय, लखनऊ का एआई सहायक हूँ।",
+            modalTitle: "रैगिंग विरोधी शिकायत पोर्टल",
+            modalDesc: "आधिकारिक रैगिंग विरोधी पोर्टल तक पहुंचने के लिए नीचे क्लिक करें:",
+            openPortal: "रैगिंग विरोधी पोर्टल खोलें"
+        }
+    };
+
+    const knowledgeBase = {
+        courses: {
+            en: "DSMNRU offers 40+ undergraduate, postgraduate and doctoral programs including: B.Tech (CSE, AI-DS, ECE, Mechanical, Civil, Electrical), B.Com, B.Sc, BA, BBA, Law, BASLP, MBA, MCA, M.Tech, M.Sc, M.Com, LLM, M.Ed (Special Education), B.Ed (Special Education), BPO, MPO, and PhD programs across multiple disciplines.",
+            hi: "DSMNRU 40+ स्नातक, स्नातकोत्तर और डॉक्टरेट कार्यक्रम प्रदान करता है जिनमें शामिल हैं: B.Tech (CSE, AI-DS, ECE, मैकेनिकल, सिविल, विद्युत), B.Com, B.Sc, BA, BBA, कानून, BASLP, MBA, MCA, M.Tech, M.Sc, M.Com, LLM, M.Ed (विशेष शिक्षा), B.Ed (विशेष शिक्षा), BPO, MPO, और PhD प्रोग्राम।"
+        },
+        fees: {
+            en: "Approximate fees (per year): B.Tech ₹90,000-1.2L | MBA ₹35,000-45,000 | MCA ₹30,000-40,000 | BA/B.Sc/B.Com ₹8,000-15,000 | Law ₹20,000-30,000 | BASLP ₹12,000-35,000. NOTE: Divyang (disabled) students get significant fee waivers and scholarships!",
+            hi: "अनुमानित शुल्क (प्रति वर्ष): B.Tech ₹90,000-1.2L | MBA ₹35,000-45,000 | MCA ₹30,000-40,000 | BA/B.Sc/B.Com ₹8,000-15,000 | कानून ₹20,000-30,000 | BASLP ₹12,000-35,000। नोट: दिव्यांग छात्रों को महत्वपूर्ण फीस छूट और छात्रवृत्ति मिलती है!"
+        },
+        admission: {
+            en: "UG Admissions: Through JEE Main / CUET-UG entrance exam + counseling. PG Admissions: Through CUET-PG or merit-based. PhD: Master's degree + entrance exam/interview. 50% seats are reserved for differently-abled students in all programs. Cut-offs vary by category.",
+            hi: "UG प्रवेश: JEE Main / CUET-UG प्रवेश परीक्षा + परामर्श के माध्यम से। PG प्रवेश: CUET-PG या योग्यता आधारित। PhD: मास्टर्स डिग्री + प्रवेश परीक्षा/साक्षात्कार। सभी कार्यक्रमों में विकलांग छात्रों के लिए 50% आसन आरक्षित हैं।"
+        },
+        facilities: {
+            en: "Campus facilities include: Barrier-free 131-acre campus with ramps & elevators | Library with 4000+ books & Braille resources | Smart classrooms with WiFi | Separate boys & girls hostels | Medical center (24/7) | Physiotherapy unit | Sports complex | Cafeteria | IT labs | Assistive technology labs.",
+            hi: "परिसर की सुविधाओं में शामिल हैं: बाधा-मुक्त 131 एकड़ परिसर | पुस्तकालय 4000+ किताबें और ब्रेल संसाधन | WiFi के साथ स्मार्ट कक्षाएं | अलग लड़के और लड़कियों का हॉस्टल | चिकित्सा केंद्र (24/7) | फिजियोथेरेपी यूनिट | खेल परिसर | कैंटीन | IT लैब्स।"
+        },
+        placement: {
+            en: "Average package: ₹3.2-4.8 LPA. Top placements: MBA up to ₹12.16 LPA, B.Tech up to ₹9 LPA. Recruiters: Wipro, HCL, IBM, Amazon, Dabur, Axis Bank, HDFC, Reliance. Active placement cell with training & MoUs.",
+            hi: "औसत पैकेज: ₹3.2-4.8 LPA। शीर्ष प्लेसमेंट: MBA ₹12.16 LPA तक, B.Tech ₹9 LPA तक। नियोक्ता: Wipro, HCL, IBM, Amazon, Dabur, Axis Bank, HDFC, Reliance। प्रशिक्षण और MoUs के साथ सक्रिय प्लेसमेंट सेल।"
+        },
+        scholarships: {
+            en: "Available scholarships: NHFDC Scholarship (for ≥40% disability) | UP State Scholarship | Central Govt Divyang Scholarships | Fee reimbursement (category-wise) | Merit-based scholarships. Divyang students receive tuition waiver + maintenance + book support.",
+            hi: "उपलब्ध छात्रवृत्ति: NHFDC छात्रवृत्ति (≥40% विकलांगता के लिए) | UP राज्य छात्रवृत्ति | केंद्रीय सरकार दिव्यांग छात्रवृत्ति | फीस प्रतिपूर्ति | योग्यता-आधारित छात्रवृत्ति। दिव्यांग छात्रों को ट्यूशन माफी + रखरखाव + किताब समर्थन मिलता है।"
+        },
+        contact: {
+            en: "Address: Mohaan Road, Lucknow, UP - 226017 | Website: https://dsmru.up.nic.in | Registrar: +91 8887222002 | Registrar Email: registrar@dsmnru.ac.in | VC: Prof. Sanjay Singh (vc@dsmnru.ac.in)",
+            hi: "पता: मोहान रोड, लखनऊ, UP - 226017 | वेबसाइट: https://dsmru.up.nic.in | रजिस्ट्रार: +91 8887222002 | रजिस्ट्रार ईमेल: registrar@dsmnru.ac.in | VC: प्रो. संजय सिंह (vc@dsmnru.ac.in)"
+        },
+        pyq: {
+            en: "📚 PYQ Papers & Syllabus Resources Available!\n\nAccess previous year question papers, syllabi, and exam materials at:\nhttps://dsmnru-pyq.netlify.app/\n\nAlso, join our PYQ & Syllabus Bot for instant access:\nhttps://t.me/dsmnru_pyq_syll_bot\n\nThis is managed by Utkarsh Mishra and contains comprehensive study materials for all programs.",
+            hi: "📚 पिछले वर्ष के प्रश्न पत्र और पाठ्यक्रम उपलब्ध!\n\nPYQ संसाधनों के लिए जाएं:\nhttps://dsmnru-pyq.netlify.app/\n\nTelegram बॉट से जुड़ें:\nhttps://t.me/dsmnru_pyq_syll_bot\n\nयह Utkarsh Mishra द्वारा प्रबंधित है।"
+        },
+        samarth: {
+            en: "🔐 DSMNRU Samarth Portal\n\nThe Samarth Portal is your gateway to accessing academic records, course registrations, and grades online.\n\nClick the button below to access the portal:",
+            hi: "🔐 DSMNRU समर्थ पोर्टल\n\nसमर्थ पोर्टल आपकी शैक्षणिक रिकॉर्ड, पाठ्यक्रम पंजीकरण और ग्रेड ऑनलाइन देखने का प्रवेश द्वार है।\n\nपोर्टल तक पहुंचने के लिए नीचे क्लिक करें:"
+        },
+        youtube: {
+            en: "▶️ DSMNRU YouTube Updates Channel\n\nStay updated with the latest news, notifications, and announcements from DSMNRU!\n\nSubscribe to our YouTube channel for:\n📢 Important announcements\n📅 Event coverage\n👨‍🎓 Student testimonials\n🎥 Campus tours and updates\n\nClick the button below to visit our channel:",
+            hi: "▶️ DSMNRU यूट्यूब अपडेट चैनल\n\nDSMNRU से नवीनतम समाचार, सूचनाएं और घोषणाएं के साथ अपडेट रहें!\n\nहमारे यूट्यूब चैनल को सब्सक्राइब करें:\n📢 महत्वपूर्ण घोषणाएं\n📅 कार्यक्रम कवरेज\n👨‍🎓 छात्र प्रशंसापत्र\n🎥 परिसर दौरे और अपडेट\n\nचैनल पर जाने के लिए नीचे क्लिक करें:"
+        }
+    };
+
+    // Initialize
+    window.addEventListener("load", () => {
+        const darkModeEnabled = localStorage.getItem("darkMode") === "true";
+        if (darkModeEnabled) {
+            document.body.classList.add('dark-mode');
+            document.getElementById("themeBtn").innerText = "☀️";
+        }
+    });
+
+    userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessage();
+    });
+
+    function changeLanguage(lang) {
+        currentLang = lang;
+        updateUILanguage();
+    }
+
+    function updateUILanguage() {
+        const t = translations[currentLang];
+        document.getElementById("askAbout").innerText = t.askAbout;
+        document.getElementById("t-courses").innerText = t.courses;
+        document.getElementById("t-fees").innerText = t.fees;
+        document.getElementById("t-admissions").innerText = t.admissions;
+        document.getElementById("t-campus").innerText = t.campus;
+        document.getElementById("t-placements").innerText = t.placements;
+        document.getElementById("t-pyq").innerText = t.pyq;
+        document.getElementById("btn-courses").innerText = t.btnCourses;
+        document.getElementById("btn-fees").innerText = t.btnFees;
+        document.getElementById("btn-admission").innerText = t.btnAdmission;
+        document.getElementById("btn-facilities").innerText = t.btnFacilities;
+        document.getElementById("btn-placement").innerText = t.btnPlacement;
+        document.getElementById("btn-contact").innerText = t.btnContact;
+        document.getElementById("btn-scholarship").innerText = t.btnScholarship;
+        document.getElementById("btn-samarth").innerText = t.btnSamarth;
+        document.getElementById("btn-youtube").innerText = t.btnYoutube;
+        document.getElementById("modal-title").innerText = t.modalTitle;
+        document.getElementById("modal-desc").innerText = t.modalDesc;
+        document.getElementById("open-portal").innerText = t.openPortal;
+        document.getElementById("welcome-title").innerText = t.welcome;
+        document.getElementById("welcome-desc").innerHTML = t.welcomeDesc;
+    }
+
+    function sendMessage() {
+        const msg = userInput.value.trim();
+        if (msg === "") return;
+
+        addMessage(msg, "user");
+        userInput.value = "";
+
+        setTimeout(() => {
+            processQuery(msg);
+        }, 300);
+    }
+
+    function addMessage(text, sender) {
+        const msgDiv = document.createElement("div");
+        msgDiv.className = sender === "user" ? "user-message" : "bot-message";
+        msgDiv.innerHTML = text;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function processQuery(query) {
+        const lowerQuery = query.toLowerCase();
+        let response = "";
+
+        if (lowerQuery.includes("course") || lowerQuery.includes("कोर्स") || lowerQuery.includes("program")) {
+            response = knowledgeBase.courses[currentLang];
+        } else if (lowerQuery.includes("fee") || lowerQuery.includes("cost") || lowerQuery.includes("फीस")) {
+            response = knowledgeBase.fees[currentLang];
+        } else if (lowerQuery.includes("admission") || lowerQuery.includes("admit") || lowerQuery.includes("प्रवेश")) {
+            response = knowledgeBase.admission[currentLang];
+        } else if (lowerQuery.includes("facility") || lowerQuery.includes("campus") || lowerQuery.includes("सुविधा")) {
+            response = knowledgeBase.facilities[currentLang];
+        } else if (lowerQuery.includes("place") || lowerQuery.includes("job") || lowerQuery.includes("प्लेसमेंट")) {
+            response = knowledgeBase.placement[currentLang];
+        } else if (lowerQuery.includes("scholar") || lowerQuery.includes("छात्रवृत्ति")) {
+            response = knowledgeBase.scholarships[currentLang];
+        } else if (lowerQuery.includes("contact") || lowerQuery.includes("phone") || lowerQuery.includes("संपर्क")) {
+            response = knowledgeBase.contact[currentLang];
+        } else if (lowerQuery.includes("pyq") || lowerQuery.includes("question") || lowerQuery.includes("paper") || lowerQuery.includes("सिलेबस")) {
+            response = knowledgeBase.pyq[currentLang];
+        } else if (lowerQuery.includes("samarth") || lowerQuery.includes("portal") || lowerQuery.includes("समर्थ")) {
+            response = knowledgeBase.samarth[currentLang] + "<br><div class='portal-link' onclick=\"openSamarthPortal()\">🔐 " + (currentLang === "en" ? "Open Samarth Portal" : "समर्थ पोर्टल खोलें") + "</div>";
+        } else if (lowerQuery.includes("youtube") || lowerQuery.includes("update") || lowerQuery.includes("यूट्यूब") || lowerQuery.includes("अपडेट")) {
+            response = knowledgeBase.youtube[currentLang] + "<br><div class='yt-link' onclick=\"openYouTubeChannel()\">▶️ " + (currentLang === "en" ? "Visit YouTube Channel" : "यूट्यूब चैनल पर जाएं") + "</div>";
+        } else if (lowerQuery.includes("ragg") || lowerQuery.includes("रैगिंग")) {
+            openComplaintModal();
+            return;
+        } else {
+            response = currentLang === "en" ? "I didn't quite understand that. Please ask about courses, fees, admissions, campus, placements, scholarships, contact info, or PYQ papers." : "मुझे समझ नहीं आया। कृपया कोर्स, फीस, प्रवेश, परिसर, प्लेसमेंट, छात्रवृत्ति, संपर्क, या पिछले प्रश्न पत्र के बारे में पूछें।";
+        }
+
+        addMessage(response, "bot");
+    }
+
+    function quickAsk(topic) {
+        const queries = {
+            courses: "Tell me about courses offered at DSMNRU",
+            fees: "What are the fee structures?",
+            admission: "How do admissions work?",
+            facilities: "What are the campus facilities?",
+            placement: "Tell me about placements",
+            contact: "What is the contact information?",
+            scholarship: "What scholarships are available?",
+            samarth: "Tell me about Samarth Portal",
+            youtube: "Tell me about YouTube updates"
+        };
+
+        const hiQueries = {
+            courses: "DSMNRU में कौन से कोर्स हैं?",
+            fees: "फीस कितनी है?",
+            admission: "प्रवेश कैसे होता है?",
+            facilities: "परिसर में कौन सी सुविधाएं हैं?",
+            placement: "प्लेसमेंट के बारे में बताएं",
+            contact: "संपर्क जानकारी क्या है?",
+            scholarship: "कौन सी छात्रवृत्ति उपलब्ध है?",
+            samarth: "समर्थ पोर्टल के बारे में बताएं",
+            youtube: "यूट्यूब अपडेट के बारे में बताएं"
+        };
+
+        const query = currentLang === "en" ? queries[topic] : hiQueries[topic];
+        userInput.value = query;
+        sendMessage();
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem("darkMode", isDark);
+        document.getElementById("themeBtn").innerText = isDark ? "☀️" : "🌙";
+    }
+
+    function clearChat() {
+        if (confirm(currentLang === "en" ? "Clear all messages?" : "सभी संदेश साफ करें?")) {
+            chatBox.innerHTML = "<div class='bot-message'><b id='welcome-title2'>" + translations[currentLang].welcome + "</b> 👋</div>";
+        }
+    }
+
+    function openSamarthPortal() {
+        window.open("https://dsmru.samarth.edu.in/index.php/site/login", "_blank");
+    }
+
+    function openYouTubeChannel() {
+        window.open("https://www.youtube.com/@DSMNRUUpdates?app=desktop", "_blank");
+    }
+
+    function openComplaintModal() {
+        document.getElementById("complaintModal").style.display = "block";
+    }
+
+    function closeComplaintModal() {
+        document.getElementById("complaintModal").style.display = "none";
+    }
+
+    function openAntiRaggingPortal() {
+        alert(currentLang === "en" ? "Please contact DSMNRU administration for anti-ragging complaints." : "कृपया रैगिंग शिकायतों के लिए DSMNRU प्रशासन से संपर्क करें।");
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("complaintModal");
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    updateUILanguage();
+</script>
+
+</body>
+</html>
